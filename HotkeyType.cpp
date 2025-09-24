@@ -67,8 +67,8 @@ int main() {
             cout << "Keys released. Typing message..." << endl;
 
             // Step 1: open chat
-            sendKey(VK_RETURN);
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            // sendKey(VK_RETURN);
+            // std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
             // Step 2: type message
             typeString(message, 2); // 2ms delay between chars
