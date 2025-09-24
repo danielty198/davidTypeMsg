@@ -1,6 +1,5 @@
 #include <windows.h>
 #include <string>
-#include <iostream>
 #include <thread>
 #include <chrono>
 
@@ -25,13 +24,12 @@ void sendKey(WORD vk) {
     SendInput(2, input, sizeof(INPUT));
 }
 
-// Helper: type a string (ASCII only; Unicode emojis will require more work)
+// Helper: type a string (ASCII only)
 void typeString(const string& text, int delayMs = 5) {
     for (char c : text) {
-        SHORT vk = VkKeyScanA(c); // map char to virtual key
-        if (vk == -1) continue;   // skip unsupported chars
+        SHORT vk = VkKeyScanA(c);
+        if (vk == -1) continue;
 
-        // Check if SHIFT is required
         bool shift = vk & 0x0100;
         if (shift) keybd_event(VK_SHIFT, 0, 0, 0);
 
@@ -39,47 +37,27 @@ void typeString(const string& text, int delayMs = 5) {
 
         if (shift) keybd_event(VK_SHIFT, 0, KEYEVENTF_KEYUP, 0);
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(delayMs));
+        this_thread::sleep_for(chrono::milliseconds(delayMs));
     }
 }
 
-int main() {
-    cout << "Listening for Ctrl + 8..." << endl;
-
+// WinMain entry point
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
     while (true) {
-        // Check if Ctrl is pressed
         bool ctrl = (GetAsyncKeyState(VK_CONTROL) & 0x8000);
-
-        // Check if '8' on main keyboard is pressed
         bool eight = (GetAsyncKeyState(0x38) & 0x8000);
 
         if (ctrl && eight) {
-            cout << "Hotkey detected! Waiting for keys to be released..." << endl;
-
-            // Wait until Ctrl and 8 are released
             while ((GetAsyncKeyState(VK_CONTROL) & 0x8000) || (GetAsyncKeyState(0x38) & 0x8000)) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                this_thread::sleep_for(chrono::milliseconds(10));
             }
 
-            // Small delay to make it more reliable in games
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
-            cout << "Keys released. Typing message..." << endl;
-
-            // Step 1: open chat
-            // sendKey(VK_RETURN);
-            // std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-            // Step 2: type message
-            typeString(message, 2); // 2ms delay between chars
-
-            // Step 3: send message
+            this_thread::sleep_for(chrono::milliseconds(50));
+            typeString(message, 2);
             sendKey(VK_RETURN);
-
-            cout << "Message sent!" << endl;
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        this_thread::sleep_for(chrono::milliseconds(10));
     }
 
     return 0;
