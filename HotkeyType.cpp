@@ -54,11 +54,21 @@ int main() {
         bool eight = (GetAsyncKeyState(0x38) & 0x8000);
 
         if (ctrl && eight) {
-            cout << "Hotkey detected! Typing message..." << endl;
+            cout << "Hotkey detected! Waiting for keys to be released..." << endl;
+
+            // Wait until Ctrl and 8 are released
+            while ((GetAsyncKeyState(VK_CONTROL) & 0x8000) || (GetAsyncKeyState(0x38) & 0x8000)) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
+
+            // Small delay to make it more reliable in games
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+            cout << "Keys released. Typing message..." << endl;
 
             // Step 1: open chat
-            // sendKey(VK_RETURN);
-            // std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            sendKey(VK_RETURN);
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
             // Step 2: type message
             typeString(message, 2); // 2ms delay between chars
@@ -67,11 +77,6 @@ int main() {
             sendKey(VK_RETURN);
 
             cout << "Message sent!" << endl;
-
-            // Wait until keys are released to avoid repeating
-            while ((GetAsyncKeyState(VK_CONTROL) & 0x8000) || (GetAsyncKeyState(0x38) & 0x8000)) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            }
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
